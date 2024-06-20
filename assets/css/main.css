@@ -121,7 +121,7 @@ input, select, textarea {
 		}
 
 	strong, b {
-		color: #ffffff;
+		color: withesmoke;
 		font-weight: 300;
 	}
 
@@ -134,7 +134,7 @@ input, select, textarea {
 	}
 
 	h1, h2, h3, h4, h5, h6 {
-		color: #ffffff;
+		color: whitesmoke;
 		font-weight: 300;
 		line-height: 1em;
 		margin: 0 0 1em 0;
@@ -2154,7 +2154,7 @@ input, select, textarea {
 	}
 
 	header p {
-		color: #ffffff;
+		color: whitesmoke;
 		position: relative;
 		margin: 0 0 1.5em 0;
 	}
@@ -2186,7 +2186,7 @@ input, select, textarea {
 	}
 
 		header.major:after {
-			background: #91ff00;
+			background: yellowgreen;
 			content: '';
 			display: inline-block;
 			height: 0.2em;
@@ -2211,7 +2211,7 @@ input, select, textarea {
 		}
 
 	label {
-		color: #ffffff;
+		color: whitesmoke;
 		display: block;
 		font-size: 0.9em;
 		font-weight: 300;
@@ -2255,7 +2255,7 @@ input, select, textarea {
 		input[type="email"]:focus,
 		select:focus,
 		textarea:focus {
-			border-color: #91ff00;
+			border-color: yellowgreen;
 		}
 
 	select {
@@ -2269,7 +2269,7 @@ input, select, textarea {
 	}
 
 		select option {
-			color: #ffffff;
+			color: whitesmoke;
 			background: #1c1d26;
 		}
 
@@ -2352,13 +2352,13 @@ input, select, textarea {
 		input[type="checkbox"]:checked + label:before,
 		input[type="radio"]:checked + label:before {
 			background: rgba(255, 255, 255, 0.25);
-			color: #ffffff;
+			color: whitesmoke;
 			content: '\f00c';
 		}
 
 		input[type="checkbox"]:focus + label:before,
 		input[type="radio"]:focus + label:before {
-			border-color: #a6ff00;
+			border-color: yellowgreen;
 		}
 
 	input[type="checkbox"] + label:before {
@@ -2466,7 +2466,7 @@ input, select, textarea {
 
 			.icon.alt:before {
 				color: #1c1d26 !important;
-				text-shadow: 1px 0 0 #ffffff, -1px 0 0 #ffffff, 0 1px 0 #ffffff, 0 -1px 0 #ffffff;
+				text-shadow: 1px 0 0 whitesmoke, -1px 0 0 whitesmoke, 0 1px 0 whitesmoke, 0 -1px 0 whitesmoke;
 			}
 
 		.icon.major {
@@ -2504,7 +2504,7 @@ input, select, textarea {
 
 				.icon.major.alt:before {
 					color: #272833 !important;
-					text-shadow: 1px 0 0 #ffffff, -1px 0 0 #ffffff, 0 1px 0 #ffffff, 0 -1px 0 #ffffff;
+					text-shadow: 1px 0 0 whitesmoke, -1px 0 0 whitesmoke, 0 1px 0 whitesmoke, 0 -1px 0 whitesmoke;
 				}
 
 /* Image */
@@ -2777,7 +2777,7 @@ input, select, textarea {
 		}
 
 		table th {
-			color: #ffffff;
+			color: whitesmoke;
 			font-size: 0.9em;
 			font-weight: 300;
 			padding: 0 0.75em 0.75em 0.75em;
@@ -2855,7 +2855,7 @@ input, select, textarea {
 		input[type="button"]:active,
 		.button:hover,
 		.button:active {
-			box-shadow: inset 0 0 0 1px greenyellow;
+			box-shadow: inset 0 0 0 1px yellowgreen;
 			color: #414240 !important;
 		}
 
@@ -2898,7 +2898,7 @@ input, select, textarea {
 		input[type="reset"].primary,
 		input[type="button"].primary,
 		.button.primary {
-			background-color: greenyellow;
+			background-color: yellowgreen;
 			box-shadow: none;
 			color: whitesmoke !important;
 			
@@ -3140,15 +3140,15 @@ input, select, textarea {
 		}
 
 		.spotlight.style1 .content {
-			border-color: #99ce1e;
+			border-color: yellowgreen;
 		}
 
 		.spotlight.style2 .content {
-			border-color: #5480f1;
+			border-color: cyan;
 		}
 
 		.spotlight.style3 .content {
-			border-color: #39c088;
+			border-color: greenyellow;
 		}
 
 		.spotlight.inactive .content {
@@ -3222,7 +3222,7 @@ input, select, textarea {
 			.wrapper.style2 .button:active {
 				background-color: rgba(255, 255, 255, 0.075) !important;
 				box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
-				color: #ffffff !important;
+				color: whitesmoke !important;
 			}
 
 			.wrapper.style2 input[type="submit"]:active,
@@ -3249,7 +3249,7 @@ input, select, textarea {
 				.wrapper.style2 .button.primary:active {
 					background-color: rgba(255, 255, 255, 0.075) !important;
 					box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
-					color: #ffffff !important;
+					color: whitesmoke !important;
 				}
 
 				.wrapper.style2 input[type="submit"].primary:active,
@@ -3341,7 +3341,7 @@ input, select, textarea {
 			}
 
 			.dropotron > li.active > a, .dropotron > li.active > span {
-				color: #91ff00;
+				color: greenyellow;
 			}
 
 		.dropotron.level-0 {
@@ -3431,7 +3431,7 @@ input, select, textarea {
 						}
 
 					#header nav ul li.active > a, #header nav ul li.active > span {
-						color: #9dff00;
+						color: greenyellow;
 					}
 
 					#header nav ul li > ul {
@@ -3893,7 +3893,7 @@ input, select, textarea {
 			}
 
 				#titleBar .title {
-					color: #ffffff;
+					color: whitesmoke;
 					display: block;
 					font-weight: 300;
 					height: 44px;
@@ -3931,7 +3931,7 @@ input, select, textarea {
 					}
 
 					#titleBar .toggle:before {
-						background: #9dff00;
+						background: yellowgreen;
 						color: rgb(0, 0, 0);
 						content: '\f0c9';
 						display: block;
@@ -3989,7 +3989,7 @@ input, select, textarea {
 					}
 
 					#navPanel .link.depth-0 {
-						color: #ffffff;
+						color: whitesmoke;
 						font-weight: 300;
 					}
 
