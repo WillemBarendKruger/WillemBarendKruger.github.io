@@ -2867,7 +2867,7 @@ input, select, textarea {
 		input[type="button"]:hover,
 		.button:hover {
 			box-shadow: inset 0 0 0 1px greenyellow;
-			color: black !important;
+			color: whitesmoke !important;
 			font-size: medium;
 		}
 
@@ -2876,7 +2876,7 @@ input, select, textarea {
 		input[type="button"]:active,
 		.button:active {
 			background-color: black;
-			color: whitesmoke;
+			color: grey;
 		}
 
 		input[type="submit"].icon:before,
