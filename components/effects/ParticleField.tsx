@@ -1,16 +1,34 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 
 type Particle = { x: number; y: number; vx: number; vy: number; r: number };
 
 export function ParticleField() {
   const reduced = usePrefersReducedMotion();
+  const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Deliberately NOT latched, unlike useInView: the hero's particle field
+  // should stop costing a requestAnimationFrame loop once scrolled past, and
+  // resume if the user scrolls back up. `visible` starts true so the canvas
+  // (and its animation) is present for the common case — page loaded at the
+  // top — before the observer's first callback confirms it.
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (reduced) return;
+    const host = hostRef.current;
+    if (!host || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), {
+      threshold: 0,
+    });
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [reduced]);
+
+  useEffect(() => {
+    if (reduced || !visible) return;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
@@ -57,15 +75,15 @@ export function ParticleField() {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
     };
-  }, [reduced]);
+  }, [reduced, visible]);
 
   if (reduced) return null;
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden
-      className="pointer-events-none absolute inset-0 size-full opacity-60"
-    />
+    <div ref={hostRef} className="pointer-events-none absolute inset-0 size-full">
+      {visible ? (
+        <canvas ref={canvasRef} aria-hidden className="size-full opacity-60" />
+      ) : null}
+    </div>
   );
 }
