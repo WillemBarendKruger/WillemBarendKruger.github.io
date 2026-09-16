@@ -63,10 +63,12 @@ template), `README.txt`.
 **Drop:** `background-banner.jpg`, `BC-itveristy.webp`, `fahim-muntashir-Projects.jpg`,
 `john-schnobrich-Education.jpg` — stock imagery works against the design direction.
 
-**Hold:** the 2025 CV PDF moves to `public/cv/` but is **not linked**. It brands Willem as a
-JavaScript/Node/AWS developer, contradicting the .NET/Azure identity the site projects. No
-résumé download ships until an updated CV is supplied; the file's presence makes that a
-drop-in replacement.
+**Hold:** the 2025 CV PDF does **not** go under `public/`. It brands Willem as a
+JavaScript/Node/AWS developer, contradicting the .NET/Azure identity the site projects, and
+static export publishes everything under `public/` to a guessable URL regardless of whether
+anything links to it — "not linked" does not mean "not published". The file is not kept in
+this repository; it remains recoverable from git history and the `v1-html5up` tag. No résumé
+download ships until an updated CV exists.
 
 ---
 

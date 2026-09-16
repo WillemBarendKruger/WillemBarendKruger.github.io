@@ -9,10 +9,17 @@ function countWord(n: number): string {
   return COUNT_WORDS[n] ?? String(n);
 }
 
+// The noun needs to agree with the count, not just the number word: "one
+// full write-up" is singular, everything else is plural.
+function featuredBlurb(n: number): string {
+  return n === 1
+    ? "One with a full write-up. The rest are linked to source."
+    : `${countWord(n)} with full write-ups. The rest are linked to source.`;
+}
+
 export function FeaturedProjects() {
   const others = projects.filter((project) => !project.featured);
-  const featuredCount = featuredProjects.length;
-  const blurb = `${countWord(featuredCount)} with full write-ups. The rest are linked to source.`;
+  const blurb = featuredBlurb(featuredProjects.length);
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-24">
