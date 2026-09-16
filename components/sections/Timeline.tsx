@@ -13,11 +13,11 @@ export function Timeline() {
       <ol className="relative border-l border-hairline/40 pl-6">
         {timeline.map((entry, index) => (
           <li key={entry.title} className="pb-10 last:pb-0">
+            <span
+              aria-hidden
+              className="absolute -left-[5px] size-2.5 rounded-full bg-purple"
+            />
             <Reveal delayMs={index * 60}>
-              <span
-                aria-hidden
-                className="absolute -left-[5px] size-2.5 rounded-full bg-purple"
-              />
               <p className="font-mono text-xs tracking-widest text-purple uppercase">
                 {entry.period}
               </p>

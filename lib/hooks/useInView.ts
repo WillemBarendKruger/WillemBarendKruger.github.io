@@ -39,7 +39,15 @@ export function useInView<T extends Element>(): Result<T> {
       return () => {};
     }
     const element = ref.current;
-    if (!element) return () => {};
+    // No element to observe (e.g. the ref hasn't attached, or attached to a
+    // branch that never renders a DOM node): degrade to visible rather than
+    // leaving content stuck hidden forever, same as the no-IntersectionObserver
+    // path above.
+    if (!element) {
+      latched.current = true;
+      onStoreChange();
+      return () => {};
+    }
 
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {

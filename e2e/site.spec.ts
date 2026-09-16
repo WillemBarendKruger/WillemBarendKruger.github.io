@@ -33,6 +33,64 @@ test("skip link is reachable by keyboard and targets content", async ({ page }) 
   await expect(page.locator("#content")).toHaveCount(1);
 });
 
+// I8(b): the reduced-motion suite below only asserts the boot overlay and
+// canvas are ABSENT. Nothing previously asserted they ever APPEAR under
+// default motion, so deleting either component outright would have kept the
+// whole suite green.
+test("boot overlay appears under default motion and auto-dismisses", async ({ page }) => {
+  await page.goto("/");
+  const overlay = page.getByRole("status");
+  await expect(overlay).toBeVisible();
+  await expect(overlay).toHaveCount(0, { timeout: 4000 });
+});
+
+test("exactly one particle-field canvas exists under default motion", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Escape");
+  await expect(page.locator("canvas")).toHaveCount(1);
+});
+
+// I8(c) / C1 regression coverage: this is the geometry check that would have
+// caught the dot-on-top-of-text bug. It asserts both halves of the fix —
+// Reveal actually animates in (the ref/hydration fix), and the dot's
+// horizontal position matches the rail's (the containing-block fix) — under
+// default (non-reduced) motion, where the original bug manifested.
+test("timeline reveal animates in and the dot lands on the rail", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Escape");
+
+  const section = page.locator("section", {
+    has: page.getByRole("heading", { name: /how i got here/i }),
+  });
+  await section.scrollIntoViewIfNeeded();
+
+  const firstReveal = section.locator("ol > li div.transition-transform").first();
+  const firstDot = section.locator("ol > li > span[aria-hidden]").first();
+  const rail = section.locator("ol");
+
+  await expect(firstReveal).toHaveClass(/translate-y-0/);
+
+  const railBox = await rail.boundingBox();
+  const dotBox = await firstDot.boundingBox();
+  expect(railBox).not.toBeNull();
+  expect(dotBox).not.toBeNull();
+  const dotCenterX = dotBox!.x + dotBox!.width / 2;
+  // The dot is a 10px circle centred on the rail (the ol's left border). If
+  // its containing block resolves to the Reveal wrapper instead (the C1 bug),
+  // this drifts by ~24px (a translate-y-4 wrapper plus its own offset) —
+  // enough to land on top of the entry's text instead of the rail.
+  expect(Math.abs(dotCenterX - railBox!.x)).toBeLessThanOrEqual(4);
+});
+
+test("clicking a featured project card opens its case study", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Escape");
+  const card = page.locator('a[href^="/projects/"]').first();
+  await card.click();
+  await expect(page).toHaveURL(/\/projects\/.+\/$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});
+
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 

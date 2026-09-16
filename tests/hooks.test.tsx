@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react";
+import { act, cleanup, render, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
@@ -16,6 +16,7 @@ function mockMatchMedia(matches: boolean) {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.useRealTimers();
+  cleanup();
 });
 
 describe("usePrefersReducedMotion", () => {
@@ -65,12 +66,67 @@ describe("useTypewriter", () => {
 });
 
 describe("useInView", () => {
+  // Renders a real component that attaches the ref via JSX, exactly like
+  // production code does — `ref={hook.ref}` on a rendered element, committed
+  // by React before effects run. `renderHook` alone can't exercise this: the
+  // old version of this suite assigned `hook.ref.current` by hand from
+  // *inside* the render callback, before the subscribe effect ever ran. That
+  // is not the condition that holds in the real app, and it is exactly the
+  // gap that let C1 (the Reveal/Timeline hydration bug) ship: the
+  // reduced-motion branch of `Reveal` used to render a *different* element
+  // that never attached the ref at all.
+  function Probe({ capture }: { capture: (hook: ReturnType<typeof useInView<HTMLDivElement>>) => void }) {
+    const hook = useInView<HTMLDivElement>();
+    capture(hook);
+    return <div ref={hook.ref} />;
+  }
+
+  // Mirrors the C1 hydration branch: the hook runs, but the render path it is
+  // attached to never produces a DOM node for the ref to find.
+  function ProbeWithoutRef({ capture }: { capture: (hook: ReturnType<typeof useInView<HTMLDivElement>>) => void }) {
+    const hook = useInView<HTMLDivElement>();
+    capture(hook);
+    return <div />;
+  }
+
+  function latestOf<T>() {
+    let latest: T | undefined;
+    return {
+      capture: (value: T) => {
+        latest = value;
+      },
+      get current() {
+        return latest;
+      },
+    };
+  }
+
   it("reports true immediately when IntersectionObserver is unavailable", () => {
     vi.stubGlobal("IntersectionObserver", undefined);
-    const { result } = renderHook(() => useInView<HTMLDivElement>());
+    const probe = latestOf<ReturnType<typeof useInView<HTMLDivElement>>>();
+    render(<Probe capture={probe.capture} />);
     // Degrading to visible is the safe failure: content must never be hidden
     // because an observer is missing.
-    expect(result.current.inView).toBe(true);
+    expect(probe.current?.inView).toBe(true);
+  });
+
+  it("degrades to visible when the ref never attaches to an element (the C1 case)", () => {
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        observe() {}
+        disconnect = disconnect;
+      },
+    );
+
+    const probe = latestOf<ReturnType<typeof useInView<HTMLDivElement>>>();
+    render(<ProbeWithoutRef capture={probe.capture} />);
+
+    // A null ref.current at subscribe time must latch to visible immediately,
+    // the same as the "no IntersectionObserver" fallback — never stuck hidden.
+    expect(probe.current?.inView).toBe(true);
+    expect(probe.current?.ref.current).toBeNull();
   });
 
   it("latches true once and disconnects the observer", () => {
@@ -87,19 +143,17 @@ describe("useInView", () => {
       },
     );
 
-    const { result } = renderHook(() => {
-      const hook = useInView<HTMLDivElement>();
-      // Attach the ref so the effect has an element to observe.
-      hook.ref.current = document.createElement("div") as HTMLDivElement;
-      return hook;
-    });
+    const probe = latestOf<ReturnType<typeof useInView<HTMLDivElement>>>();
+    render(<Probe capture={probe.capture} />);
+
+    expect(probe.current?.ref.current).not.toBeNull();
 
     act(() => { trigger?.([{ isIntersecting: true }]); });
-    expect(result.current.inView).toBe(true);
+    expect(probe.current?.inView).toBe(true);
     expect(disconnect).toHaveBeenCalled();
 
     act(() => { trigger?.([{ isIntersecting: false }]); });
-    expect(result.current.inView).toBe(true);
+    expect(probe.current?.inView).toBe(true);
   });
 
   it("subscribes exactly once across re-renders", () => {
@@ -115,14 +169,11 @@ describe("useInView", () => {
       },
     );
 
-    const { rerender } = renderHook(() => {
-      const hook = useInView<HTMLDivElement>();
-      hook.ref.current = document.createElement("div") as HTMLDivElement;
-      return hook;
-    });
+    const probe = latestOf<ReturnType<typeof useInView<HTMLDivElement>>>();
+    const { rerender } = render(<Probe capture={probe.capture} />);
 
-    rerender();
-    rerender();
+    rerender(<Probe capture={probe.capture} />);
+    rerender(<Probe capture={probe.capture} />);
 
     // Guards against an options parameter defaulting to a fresh object literal,
     // which would land in the dependency array and re-subscribe every render.
