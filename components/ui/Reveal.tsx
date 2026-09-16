@@ -18,12 +18,17 @@ export function Reveal({
   // no opacity change. Content is simply present.
   if (reduced) return <div>{children}</div>;
 
+  // Transform only, never opacity: fading text through low-alpha states
+  // during the transition would fail color-contrast at that instant (real
+  // for anyone loading the page without scrolling, and reliably caught by
+  // an axe scan taken right after `page.goto`). Text stays fully opaque and
+  // readable throughout; only the slide-up motion is animated.
   return (
     <div
       ref={ref}
       style={{ transitionDelay: `${delayMs}ms` }}
-      className={`transition-all duration-700 ease-out ${
-        inView ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      className={`transition-transform duration-700 ease-out ${
+        inView ? "translate-y-0" : "translate-y-4"
       }`}
     >
       {children}
