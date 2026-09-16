@@ -3,8 +3,16 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { featuredProjects, projects } from "@/data/projects";
 
+const COUNT_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+
+function countWord(n: number): string {
+  return COUNT_WORDS[n] ?? String(n);
+}
+
 export function FeaturedProjects() {
   const others = projects.filter((project) => !project.featured);
+  const featuredCount = featuredProjects.length;
+  const blurb = `${countWord(featuredCount)} with full write-ups. The rest are linked to source.`;
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-24">
@@ -12,7 +20,7 @@ export function FeaturedProjects() {
         id="projects"
         index="03 // Artifacts"
         title="What I've built"
-        blurb="Two with full write-ups. The rest are linked to source."
+        blurb={blurb}
       />
       <div className="grid gap-4 sm:grid-cols-2">
         {featuredProjects.map((project, index) => (
