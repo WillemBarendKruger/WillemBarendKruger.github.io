@@ -29,7 +29,7 @@ export function useTypewriter(text: string, options: Options = {}): string {
       });
     }, speedMs);
     return () => clearInterval(id);
-  }, [key, text.length, speedMs, enabled]);
+  }, [text.length, speedMs, enabled]);
 
   return enabled ? text.slice(0, count) : text;
 }
