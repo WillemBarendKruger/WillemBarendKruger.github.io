@@ -3,7 +3,7 @@ import type { Profile } from "./types";
 export const profile: Profile = {
   name: "Willem Kruger",
   handle: "WillemBarendKruger",
-  role: "Software Engineer",
+  role: "Graduate Software Engineer",
   epithet: "Digital Arcanist",
   location: "Mpumalanga, South Africa",
   summary: [

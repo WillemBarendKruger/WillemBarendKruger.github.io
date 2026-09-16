@@ -10,13 +10,13 @@ const html = `<!doctype html>
        justify-content:center;padding:0 80px;box-sizing:border-box}
   .tag{color:#39FF88;font-size:20px;letter-spacing:.3em;text-transform:uppercase}
   h1{font-size:82px;margin:24px 0 0;font-weight:700}
-  .role{color:#9B5CFF;font-size:30px;margin-top:16px}
+  .role{color:#9B5CFF;font-size:26px;margin-top:16px}
   .stack{color:#8B949E;font-size:22px;margin-top:56px;letter-spacing:.2em}
 </style></head>
 <body>
   <div class="tag">System online</div>
   <h1>WILLEM KRUGER</h1>
-  <div class="role">Software Engineer &middot; Backend / .NET</div>
+  <div class="role">Graduate Software Engineer &middot; Backend / .NET</div>
   <div class="stack">C# &nbsp; .NET &nbsp; TYPESCRIPT &nbsp; REACT &nbsp; AZURE</div>
 </body></html>`;
 
