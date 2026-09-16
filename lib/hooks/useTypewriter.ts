@@ -6,22 +6,30 @@ type Options = { speedMs?: number; enabled?: boolean };
 
 export function useTypewriter(text: string, options: Options = {}): string {
   const { speedMs = 28, enabled = true } = options;
-  const [shown, setShown] = useState(enabled ? "" : text);
+  const key = `${enabled}|${speedMs}|${text}`;
+  const [count, setCount] = useState(0);
+  const [prevKey, setPrevKey] = useState(key);
+
+  // Documented React pattern: adjusting state during render when an input
+  // changes, rather than syncing it in an effect.
+  if (key !== prevKey) {
+    setPrevKey(key);
+    setCount(0);
+  }
 
   useEffect(() => {
-    if (!enabled) {
-      setShown(text);
-      return;
-    }
-    setShown("");
-    let index = 0;
+    if (!enabled) return;
     const id = setInterval(() => {
-      index += 1;
-      setShown(text.slice(0, index));
-      if (index >= text.length) clearInterval(id);
+      setCount((n) => {
+        if (n >= text.length) {
+          clearInterval(id);
+          return n;
+        }
+        return n + 1;
+      });
     }, speedMs);
     return () => clearInterval(id);
-  }, [text, speedMs, enabled]);
+  }, [key, text.length, speedMs, enabled]);
 
-  return shown;
+  return enabled ? text.slice(0, count) : text;
 }

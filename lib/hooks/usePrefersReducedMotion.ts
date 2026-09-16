@@ -1,25 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
-/**
- * Defaults to `true` so the first render — server, pre-hydration, or in an
- * environment without matchMedia — is the static, complete version. Motion is
- * then opted into once we know the user permits it, never opted out of.
- */
+function subscribe(onChange: () => void): () => void {
+  if (typeof window.matchMedia !== "function") return () => {};
+  const mq = window.matchMedia(QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function getSnapshot(): boolean {
+  if (typeof window.matchMedia !== "function") return true;
+  return window.matchMedia(QUERY).matches;
+}
+
+// Server and pre-hydration render assume reduced motion, so the first paint is
+// the static, complete version. Motion is opted into, never opted out of.
+function getServerSnapshot(): boolean {
+  return true;
+}
+
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(true);
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia(QUERY);
-    setReduced(mq.matches);
-    const onChange = (event: MediaQueryListEvent) => setReduced(event.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  return reduced;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

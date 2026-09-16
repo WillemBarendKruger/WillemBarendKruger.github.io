@@ -19,13 +19,10 @@ const OBSERVER_OPTIONS: IntersectionObserverInit = {
  */
 export function useInView<T extends Element>(): Result<T> {
   const ref = useRef<T | null>(null);
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(() => typeof IntersectionObserver !== "function");
 
   useEffect(() => {
-    if (typeof IntersectionObserver !== "function") {
-      setInView(true);
-      return;
-    }
+    if (typeof IntersectionObserver !== "function") return;
     const element = ref.current;
     if (!element) return;
 
