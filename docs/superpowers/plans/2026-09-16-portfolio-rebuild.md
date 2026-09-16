@@ -63,8 +63,10 @@
 
 - [ ] **Step 1: Tag the old site before deleting anything**
 
+`4be6142` is the tip of `main` and therefore the site as currently deployed.
+
 ```bash
-git tag v1-html5up e1eb157
+git tag v1-html5up 4be6142
 git push origin v1-html5up
 ```
 
@@ -108,9 +110,14 @@ Expected: `profile.png`, `employee-management.png`, `sen371-web-app.png`, `wpr37
 ```bash
 cd ..
 npx --yes create-next-app@latest portfolio-scaffold \
-  --typescript --tailwind --eslint --app --src-dir=false \
-  --import-alias "@/*" --no-turbopack --use-npm
+  --typescript --tailwind --eslint --app --no-src-dir \
+  --import-alias "@/*" --use-npm --yes
 ```
+
+These flags target a Next.js version published after this plan was written. **If any flag is
+rejected, run `npx create-next-app@latest --help`, use the equivalent documented flag, and note
+the correction in your report.** The requirements that matter are: TypeScript, Tailwind, ESLint,
+App Router, no `src/` directory, `@/*` import alias, npm. How the CLI spells them is its business.
 
 - [ ] **Step 5: Copy the scaffold into the repo**
 
@@ -362,6 +369,8 @@ describe("design tokens", () => {
     ["muted", "panel"],
     ["cyan", "bg"],
     ["green", "bg"],
+    ["purple", "bg"],
+    ["purple", "panel"],
   ])("%s on %s meets AA for body text", (fg, bg) => {
     expect(contrastRatio(token(fg), token(bg))).toBeGreaterThanOrEqual(4.5);
   });
@@ -475,7 +484,7 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 - Consumes: nothing
 - Produces:
   - `usePrefersReducedMotion(): boolean` — defaults to `true` before hydration
-  - `useInView<T extends Element>(): { ref: RefObject<T | null>; inView: boolean }` — latches true, never returns to false
+  - `useInView<T extends Element>(): { ref: RefObject<T | null>; inView: boolean }` — latches true, never returns to false. **Takes no arguments.** An options parameter defaulting to `{}` would be a fresh object on every render, re-subscribing the observer each time; no caller needs custom options.
   - `useTypewriter(text: string, opts?: { speedMs?: number; enabled?: boolean }): string`
 
 - [ ] **Step 1: Write the failing hook tests**
@@ -586,6 +595,33 @@ describe("useInView", () => {
     act(() => { trigger?.([{ isIntersecting: false }]); });
     expect(result.current.inView).toBe(true);
   });
+
+  it("subscribes exactly once across re-renders", () => {
+    const constructed = vi.fn();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor() {
+          constructed();
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+
+    const { rerender } = renderHook(() => {
+      const hook = useInView<HTMLDivElement>();
+      hook.ref.current = document.createElement("div") as HTMLDivElement;
+      return hook;
+    });
+
+    rerender();
+    rerender();
+
+    // Guards against an options parameter defaulting to a fresh object literal,
+    // which would land in the dependency array and re-subscribe every render.
+    expect(constructed).toHaveBeenCalledTimes(1);
+  });
 });
 ```
 
@@ -671,13 +707,20 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 
 type Result<T extends Element> = { ref: RefObject<T | null>; inView: boolean };
 
+const OBSERVER_OPTIONS: IntersectionObserverInit = {
+  threshold: 0.15,
+  rootMargin: "0px 0px -8% 0px",
+};
+
 /**
  * Fires once and latches. Scroll reveals are enter-only — re-hiding content on
  * scroll-out is disorienting and breaks find-in-page.
+ *
+ * Deliberately takes no arguments. An options parameter defaulting to `{}`
+ * would be a new object identity on every render, so an effect depending on it
+ * would tear down and re-subscribe the observer continuously.
  */
-export function useInView<T extends Element>(
-  options: IntersectionObserverInit = {},
-): Result<T> {
+export function useInView<T extends Element>(): Result<T> {
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
 
@@ -689,18 +732,15 @@ export function useInView<T extends Element>(
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px", ...options },
-    );
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setInView(true);
+        observer.disconnect();
+      }
+    }, OBSERVER_OPTIONS);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [options]);
+  }, []);
 
   return { ref, inView };
 }
@@ -1286,15 +1326,13 @@ export const quests: readonly Quest[] = [
 ] as const;
 ```
 
-- [ ] **Step 6: Verify the validator accepts the real content**
-
-```bash
-npx tsx --eval "import('./data/projects.ts').then(() => console.log('content valid'))" 2>/dev/null \
-  || npm run typecheck
-```
+- [ ] **Step 6: Verify the content typechecks**
 
 Run: `npm run typecheck`
-Expected: no type errors. If `validateProjects` throws at build time in a later task, the message names the offending project and field.
+Expected: no type errors.
+
+`validateProjects` runs for real from Task 7 onward, when `next build` first imports these
+modules. If it throws then, the message names the offending project and field.
 
 - [ ] **Step 7: Commit**
 
@@ -1628,20 +1666,12 @@ export default function NotFound() {
 }
 ```
 
-- [ ] **Step 3: Create a placeholder Open Graph image**
+- [ ] **Step 3: Note the deferred Open Graph image**
 
-The OG image must exist or the metadata points at a 404. Generate a 1200×630 PNG using the palette:
-
-```bash
-node -e "
-const fs=require('fs');
-const {createCanvas}=require('canvas');
-" 2>/dev/null || echo "canvas unavailable — use the SVG route below"
-```
-
-Do not install a canvas dependency. Instead create `public/images/og.svg` and convert it once with a headless browser you already have via Playwright (installed in Task 12), or simply author the PNG by hand in any editor at 1200×630 using `--color-bg` `#05070A` as background, the name `WILLEM KRUGER` in JetBrains Mono, and `SOFTWARE ENGINEER · BACKEND / .NET` beneath it in `#8B949E`. Save as `public/images/og.png`.
-
-Verify: `ls -l public/images/og.png` shows a non-zero file.
+The metadata above references `/images/og.png`, which does not exist yet. It is generated in
+Task 11 Step 5, once Playwright is installed and can render it deterministically. Until then the
+link 404s, which affects nothing in development. **Do not hand-author a placeholder** — it would
+be silently replaced two tasks later.
 
 - [ ] **Step 4: Build and commit**
 
@@ -1671,6 +1701,7 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 
 import { useCallback, useEffect, useState } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
+import { useTypewriter } from "@/lib/hooks/useTypewriter";
 
 const LINES = [
   "loading developer profile...",
@@ -1692,6 +1723,10 @@ export function BootOverlay() {
   const reduced = usePrefersReducedMotion();
   const [visible, setVisible] = useState(false);
   const [shown, setShown] = useState(0);
+  const heading = useTypewriter("> initializing willem.kruger", {
+    speedMs: 22,
+    enabled: visible,
+  });
 
   const dismiss = useCallback(() => setVisible(false), []);
 
@@ -1730,7 +1765,7 @@ export function BootOverlay() {
       className="fixed inset-0 z-40 flex items-center justify-center bg-bg px-4"
     >
       <div className="w-full max-w-md font-mono text-sm">
-        <p className="text-green">&gt; initializing willem.kruger</p>
+        <p className="text-green">{heading}</p>
         <ul className="mt-4 space-y-1">
           {LINES.slice(0, shown).map((line) => (
             <li key={line} className="text-muted">
@@ -1859,7 +1894,7 @@ export function Hero() {
             View GitHub
           </GlowButton>
         </div>
-        <ul className="mt-12 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs tracking-widest text-hairline uppercase">
+        <ul className="mt-12 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs tracking-widest text-muted uppercase">
           {STACK.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -1899,6 +1934,7 @@ Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>"
 - [ ] **Step 1: Create `Identity`**
 
 ```tsx
+import Image from "next/image";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TerminalFrame } from "@/components/ui/TerminalFrame";
 import { profile } from "@/data/profile";
@@ -1910,20 +1946,29 @@ export function Identity() {
       <TerminalFrame title="willem@grimoire — whoami">
         <p className="text-green">&gt; whoami</p>
         <dl className="mt-4 grid gap-1 sm:grid-cols-[10rem_1fr]">
-          <dt className="text-hairline">name</dt>
+          <dt className="text-muted">name</dt>
           <dd className="text-text">{profile.name}</dd>
-          <dt className="text-hairline">role</dt>
+          <dt className="text-muted">role</dt>
           <dd className="text-text">{profile.role}</dd>
-          <dt className="text-hairline">focus</dt>
+          <dt className="text-muted">focus</dt>
           <dd className="text-text">Backend / .NET</dd>
-          <dt className="text-hairline">location</dt>
+          <dt className="text-muted">location</dt>
           <dd className="text-text">{profile.location}</dd>
         </dl>
       </TerminalFrame>
-      <div className="mt-8 space-y-4 text-muted">
-        {profile.summary.map((paragraph) => (
-          <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-        ))}
+      <div className="mt-10 flex flex-col gap-8 sm:flex-row sm:items-start">
+        <Image
+          src="/images/profile.png"
+          alt="Willem Kruger"
+          width={160}
+          height={160}
+          className="shrink-0 rounded-sm border border-hairline/40"
+        />
+        <div className="space-y-4 text-muted">
+          {profile.summary.map((paragraph) => (
+            <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1977,6 +2022,7 @@ export function Spellbook() {
 - [ ] **Step 3: Create `ProjectCard`**
 
 ```tsx
+import Image from "next/image";
 import Link from "next/link";
 import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
@@ -1985,6 +2031,17 @@ import type { Project } from "@/data/types";
 export function ProjectCard({ project }: { project: Project }) {
   const body = (
     <Panel accent={project.featured ? "cyan" : "purple"} className="h-full p-5">
+      {project.image ? (
+        <Image
+          src={project.image}
+          // Decorative: the project name and tagline directly below carry the
+          // meaning, so alt text here would only repeat them.
+          alt=""
+          width={640}
+          height={360}
+          className="mb-4 w-full rounded-sm border border-hairline/30 object-cover"
+        />
+      ) : null}
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-mono text-lg text-text">{project.name}</h3>
         {project.collaboration === "team" ? (
@@ -2055,7 +2112,7 @@ export function FeaturedProjects() {
           </Reveal>
         ))}
       </div>
-      <h3 className="mt-16 font-mono text-sm tracking-widest text-hairline uppercase">
+      <h3 className="mt-16 font-mono text-sm tracking-widest text-muted uppercase">
         Also built
       </h3>
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -2155,7 +2212,9 @@ import { profile } from "@/data/profile";
 
 export function Connect() {
   return (
-    <footer className="mx-auto max-w-3xl px-4 py-24">
+    // A <footer> here would sit inside the layout's <main>, where it is not a
+    // page-level contentinfo landmark — the element would misrepresent itself.
+    <section className="mx-auto max-w-3xl px-4 py-24">
       <SectionHeading
         id="connect"
         index="06 // Establish connection"
@@ -2172,20 +2231,20 @@ export function Connect() {
           </GlowButton>
         ))}
       </div>
-      <p className="mt-16 font-mono text-xs text-hairline">
+      <p className="mt-16 font-mono text-xs text-muted">
         &copy; {new Date().getFullYear()} {profile.name}. Built with Next.js and
         TypeScript.{" "}
         <a
           href="https://github.com/WillemBarendKruger/WillemBarendKruger.github.io"
           target="_blank"
           rel="noreferrer noopener"
-          className="text-muted underline decoration-hairline underline-offset-4 hover:text-cyan"
+          className="underline decoration-hairline underline-offset-4 hover:text-cyan"
         >
           Source
         </a>
         .
       </p>
-    </footer>
+    </section>
   );
 }
 ```
@@ -2549,9 +2608,58 @@ npm run test:e2e
 
 Expected: all tests pass. **If the axe or 320px tests fail, fix the site, not the test.** Those two encode spec §10 and are the point of the suite.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Generate the Open Graph image**
+
+Deferred here from Task 7 because Playwright can render it deterministically, which nothing
+available in Task 7 could.
+
+Create `scripts/make-og.mjs`:
+
+```js
+import { chromium } from "@playwright/test";
+
+const html = `<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0}
+  body{width:1200px;height:630px;background:#05070A;color:#C9D1D9;
+       font-family:'JetBrains Mono',monospace;display:flex;flex-direction:column;
+       justify-content:center;padding:0 80px;box-sizing:border-box}
+  .tag{color:#39FF88;font-size:20px;letter-spacing:.3em;text-transform:uppercase}
+  h1{font-size:82px;margin:24px 0 0;font-weight:700}
+  .role{color:#9B5CFF;font-size:30px;margin-top:16px}
+  .stack{color:#8B949E;font-size:22px;margin-top:56px;letter-spacing:.2em}
+</style></head>
+<body>
+  <div class="tag">System online</div>
+  <h1>WILLEM KRUGER</h1>
+  <div class="role">Software Engineer &middot; Backend / .NET</div>
+  <div class="stack">C# &nbsp; .NET &nbsp; TYPESCRIPT &nbsp; REACT &nbsp; AZURE</div>
+</body></html>`;
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+await page.setContent(html, { waitUntil: "networkidle" });
+await page.screenshot({ path: "public/images/og.png" });
+await browser.close();
+console.log("wrote public/images/og.png");
+```
+
+Run it and verify:
 
 ```bash
+node scripts/make-og.mjs
+node -e "console.log(require('fs').statSync('public/images/og.png').size)"
+```
+
+Expected: a non-zero byte count. The script is committed so the image can be regenerated after
+a copy or palette change, rather than being a binary nobody can reproduce.
+
+- [ ] **Step 6: Commit**
+
+```bash
+npm run build
 git add -A
 git commit -m "test: add accessibility and responsive e2e suite
 
