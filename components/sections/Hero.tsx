@@ -6,6 +6,8 @@ import { profile } from "@/data/profile";
 const STACK = ["C#", ".NET", "TypeScript", "React", "Azure"];
 
 export function Hero() {
+  const github = profile.links.find((link) => link.label === "GitHub");
+
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden px-4">
       <ParticleField />
@@ -26,9 +28,11 @@ export function Hero() {
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <GlowButton href="#projects">Enter the grimoire</GlowButton>
-          <GlowButton href={profile.links[0].href} variant="ghost" external>
-            View GitHub
-          </GlowButton>
+          {github ? (
+            <GlowButton href={github.href} variant="ghost" external>
+              View GitHub
+            </GlowButton>
+          ) : null}
         </div>
         <ul className="mt-12 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs tracking-widest text-muted uppercase">
           {STACK.map((item) => (
