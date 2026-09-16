@@ -38,9 +38,18 @@ runs at import, so malformed content fails the build rather than shipping.
 `caseStudy.features` is for work that exists in the code. `caseStudy.planned` is
 for work that does not. Keep the distinction honest.
 
+A CV download will be added once an updated CV exists. Anything placed under
+`public/` is exported verbatim to `out/` and published at a guessable URL —
+static export has no concept of "not linked", so nothing sensitive belongs there.
+
 ## Deployment
 
 Pushing to `main` builds and deploys. Repository Settings → Pages → Source must
 be set to **GitHub Actions**.
+
+**This matters before merging, not just eventually.** This branch deletes the
+old root `index.html`. If Pages is still set to "Deploy from a branch" when
+this merges, `willembarendkruger.github.io` — a URL printed on the owner's CV —
+goes down (404) until Source is switched to GitHub Actions.
 
 The previous HTML5 UP site is preserved at tag `v1-html5up`.
