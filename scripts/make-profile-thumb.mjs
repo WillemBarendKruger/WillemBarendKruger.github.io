@@ -18,12 +18,17 @@ const tmpHtml = path.join(imagesDir, "_profile-thumb.tmp.html");
 const width = 320;
 const height = 480;
 
+// The source is a deliberate cut-out (transparent background, not a
+// rectangular photo), so the page it's rendered on must itself be
+// transparent, and the screenshot must be taken with omitBackground so
+// Playwright doesn't composite that transparency onto opaque white before
+// writing the PNG.
 writeFileSync(
   tmpHtml,
   `<!doctype html>
 <html><head><meta charset="utf-8">
 <style>
-  html,body{margin:0;padding:0}
+  html,body{margin:0;padding:0;background:transparent}
   img{display:block;width:${width}px;height:${height}px;object-fit:cover}
 </style></head>
 <body><img src="profile.png"></body></html>`,
@@ -34,7 +39,7 @@ try {
   const page = await browser.newPage({ viewport: { width, height } });
   await page.goto(`file://${tmpHtml.replace(/\\/g, "/")}`);
   await page.waitForLoadState("networkidle");
-  await page.screenshot({ path: tmpOut });
+  await page.screenshot({ path: tmpOut, omitBackground: true });
 } finally {
   await browser.close();
   rmSync(tmpHtml, { force: true });
