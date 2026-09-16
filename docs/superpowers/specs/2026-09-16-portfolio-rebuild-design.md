@@ -25,7 +25,7 @@ professional. Theme lives in the UI layer; the content stays credible.
 
 | # | Decision | Rationale |
 |---|---|---|
-| D1 | Next.js 15 App Router, TypeScript, Tailwind v4, static export | Demonstrates the claimed stack; static export is all this site needs |
+| D1 | Next.js (current major) App Router, TypeScript, Tailwind v4, static export | Demonstrates the claimed stack; static export is all this site needs. Amended 2026-09-16: current published Next is 16.3.5, not 15 as originally drafted. The scaffold takes whatever `create-next-app@latest` resolves rather than pinning versions guessed at design time |
 | D2 | No animation library | Every effect required is enter-once or state-based; hand-rolled hooks cost ~60 lines vs ~35 KB gzipped |
 | D3 | Deploy to GitHub Pages via GitHub Actions | Preserves `willembarendkruger.github.io`, already printed on the CV; keeps `main` source-only |
 | D4 | One narrative homepage + a route per featured project | The story reads as a continuous descent; case studies need their own room |
@@ -124,9 +124,10 @@ contrast script during implementation, not by eye.
 interactive, purple = arcane decoration. Glow is a `box-shadow` token at three intensities,
 never applied to body text.
 
-**Type.** JetBrains Mono (self-hosted, subset, via `next/font/local`) for terminal and display;
-Inter variable for body. Self-hosting removes a third-party request from a site whose argument
-is engineering quality.
+**Type.** JetBrains Mono for terminal and display; Inter for body. Both loaded via
+`next/font/google`, which downloads and **self-hosts at build time** — no runtime request to a
+third party, and no font binaries committed to the repo. (Amended 2026-09-16 from
+`next/font/local`, which would have required committing font files by hand for no benefit.)
 
 ---
 
