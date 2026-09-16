@@ -14,7 +14,7 @@
 
 - **Branch:** all work on `feat/portfolio-rebuild`. Never commit to `main`.
 - **No invented facts.** Every factual claim on the site must appear in spec §9. If content is needed that §9 does not cover, stop and ask — do not write plausible filler.
-- **No client content.** Nothing derived from `DEP and Field-service` (DEP, RSL CRM, pd-chat) may enter this repository. Employment is described as "Boxfusion" + "Shesha" only.
+- **No client content.** Nothing derived from the employer's client project directories may enter this repository. Employment is described as "Boxfusion" + "Shesha" only.
 - **No numeric skill ratings.** No percentages, no 1–10 scores, no progress bars implying measured proficiency.
 - **No animation library.** Do not install Framer Motion, GSAP, react-spring, or equivalents.
 - **No runtime GitHub API.** Repository data is static.

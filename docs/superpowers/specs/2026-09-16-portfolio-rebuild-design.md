@@ -254,6 +254,12 @@ total across the team, **48 of them Willem's**, 126 merged pull requests. This i
 evidence of sustained team collaboration in the portfolio — the old site claimed teamwork but
 never demonstrated it. Repository lives on a teammate's account; the card states this.
 
+**Confirmed in source on 2026-09-16** (against a local clone of the repository): `Municipality.cs`
+entity and `MunicipalityAppService`; `Incident.cs` entity and `IncidentDto` under `Reports`;
+`RegisterAppService` and `AccountAppService` with `RegisterInput`/`RegisterOutput` DTOs; and the
+backend split across `Potholio.Application`, `Potholio.Core`, `Potholio.Web.Host`,
+`Potholio.EntityFrameworkCore`, `Potholio.Web.Core` and `Potholio.Migrator`.
+
 **Short cards.**
 
 - *FitFusion* — personal trainer platform. Next.js + TypeScript. Trainers manage clients, meal
@@ -291,7 +297,7 @@ edit one file to update the section.
 
 ### Out of bounds
 
-The `DEP and Field-service` working directories (DEP, RSL CRM, pd-chat) are Boxfusion client
+The employer's client project directories are Boxfusion client
 work. **No content from them appears on the site in any form.**
 
 ---
