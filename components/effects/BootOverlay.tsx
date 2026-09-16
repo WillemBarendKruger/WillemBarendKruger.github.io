@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
 
@@ -15,6 +15,45 @@ const LINES = [
 const STORAGE_KEY = "boot-seen";
 const LINE_MS = 260;
 
+// Cached after the first successful read. This component's own write effect
+// (below) is the only thing that ever changes this sessionStorage key, so a
+// live re-read on every render would observe our own write and flip "seen"
+// to true mid-animation, closing the overlay after a single tick instead of
+// letting it run its course. Freezing the value for the life of this module
+// avoids that self-inflicted tear; a fresh page load gets a fresh cache.
+let cachedBootSeen: boolean | null = null;
+
+function getBootSeenSnapshot(): boolean {
+  if (cachedBootSeen === null) {
+    try {
+      cachedBootSeen = sessionStorage.getItem(STORAGE_KEY) !== null;
+    } catch {
+      // Private mode or blocked storage: treat as "not seen" so the overlay
+      // still shows once for this page view.
+      cachedBootSeen = false;
+    }
+  }
+  return cachedBootSeen;
+}
+
+// There is no native storage event for same-tab writes, and the value above
+// is read once (and cached) rather than watched, so there is nothing to
+// subscribe to. This no-op is intentional, not an oversight.
+function subscribeBootSeen(): () => void {
+  return () => {};
+}
+
+// Server and pre-hydration render assume the overlay has already been seen,
+// so it can never appear in static or first-paint HTML. This mirrors
+// usePrefersReducedMotion's "assume reduced motion" default.
+function getBootSeenServerSnapshot(): boolean {
+  return true;
+}
+
+function useBootSeen(): boolean {
+  return useSyncExternalStore(subscribeBootSeen, getBootSeenSnapshot, getBootSeenServerSnapshot);
+}
+
 /**
  * Renders OVER content that is already in the DOM. It never gates the page:
  * crawlers, no-JS visitors and screen readers all reach the real content
@@ -22,30 +61,34 @@ const LINE_MS = 260;
  */
 export function BootOverlay() {
   const reduced = usePrefersReducedMotion();
-  const [visible, setVisible] = useState(false);
+  const seen = useBootSeen();
+  const [dismissed, setDismissed] = useState(false);
   const [shown, setShown] = useState(0);
+
+  // Derived at render, not stored: reduced/seen come from external stores and
+  // dismissed is ordinary state set only by event handlers, so nothing here
+  // needs a set-state-in-effect.
+  const visible = !reduced && !seen && !dismissed;
+
   const heading = useTypewriter("> initializing willem.kruger", {
     speedMs: 22,
     enabled: visible,
   });
 
-  const dismiss = useCallback(() => setVisible(false), []);
+  const dismiss = useCallback(() => setDismissed(true), []);
 
+  // Write-only: record that this session has now seen the overlay, once it
+  // actually becomes visible. Sets no React state, so it triggers no
+  // re-render of its own.
   useEffect(() => {
-    if (reduced) return;
+    if (!visible) return;
     try {
-      if (sessionStorage.getItem(STORAGE_KEY)) return;
       sessionStorage.setItem(STORAGE_KEY, "1");
     } catch {
-      // Private mode or blocked storage: show it once this page view, which is
-      // no worse than showing it once per session.
+      // Private mode or blocked storage: nothing persists, so the overlay may
+      // show again on the next page view. No worse than once per session.
     }
-    // This effect synchronizes with an external system (sessionStorage), so
-    // the resulting visibility can't be derived during render — it depends on
-    // a one-time read performed here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVisible(true);
-  }, [reduced]);
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return;

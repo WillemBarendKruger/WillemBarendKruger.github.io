@@ -20,6 +20,9 @@ export function ParticleField() {
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // Assigning canvas.width/height resets the 2D context transform to the
+      // identity matrix, so this scale is applied fresh each resize rather
+      // than compounding with whatever scale was set on a previous resize.
       canvas.width = canvas.offsetWidth * dpr;
       canvas.height = canvas.offsetHeight * dpr;
       ctx.scale(dpr, dpr);
