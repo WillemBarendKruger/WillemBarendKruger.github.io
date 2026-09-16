@@ -13,8 +13,8 @@ export function ProjectCard({ project }: { project: Project }) {
           // Decorative: the project name and tagline directly below carry the
           // meaning, so alt text here would only repeat them.
           alt=""
-          width={640}
-          height={360}
+          width={project.imageWidth ?? 640}
+          height={project.imageHeight ?? 360}
           className="mb-4 w-full rounded-sm border border-hairline/30 object-cover"
         />
       ) : null}
@@ -42,7 +42,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
   if (project.featured) {
     return (
-      <Link href={`/projects/${project.slug}/`} className="block h-full">
+      <Link href={`/projects/${project.slug}/`} prefetch={false} className="block h-full">
         {body}
       </Link>
     );

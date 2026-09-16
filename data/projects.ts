@@ -119,6 +119,8 @@ export const projects: readonly Project[] = [
     technologies: ["JavaScript", "Node.js"],
     links: { source: "https://github.com/WillemBarendKruger/WPR371_Assignment1" },
     image: "/images/wpr371-song-search.gif",
+    imageWidth: 1200,
+    imageHeight: 630,
   },
   {
     slug: "employee-management",
@@ -130,6 +132,8 @@ export const projects: readonly Project[] = [
     technologies: ["C#", ".NET"],
     links: { source: "https://github.com/WillemBarendKruger/Employee-management-system-Project" },
     image: "/images/employee-management.png",
+    imageWidth: 798,
+    imageHeight: 470,
   },
   {
     slug: "sen371-service-platform",
@@ -142,6 +146,8 @@ export const projects: readonly Project[] = [
     links: { source: "https://github.com/HenryG-code/SEN371-project" },
     attribution: "University team project. The repository is hosted on a teammate's account.",
     image: "/images/sen371-web-app.png",
+    imageWidth: 1844,
+    imageHeight: 692,
   },
 ] as const;
 

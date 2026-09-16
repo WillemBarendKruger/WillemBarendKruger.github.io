@@ -19,6 +19,10 @@ export type Project = {
   technologies: readonly string[];
   links: { source?: string; live?: string };
   image?: string;
+  /** Intrinsic pixel dimensions of `image`, so the rendered aspect ratio
+   * matches the real file and the browser doesn't reflow once it loads. */
+  imageWidth?: number;
+  imageHeight?: number;
   /** Shown verbatim when the repository is not under Willem's account. */
   attribution?: string;
   caseStudy?: CaseStudy;

@@ -25,8 +25,8 @@ export function Identity() {
           src="/images/profile.png"
           alt="Willem Kruger"
           width={160}
-          height={160}
-          className="shrink-0 rounded-sm border border-hairline/40"
+          height={240}
+          className="w-40 shrink-0 rounded-sm border border-hairline/40 object-cover"
         />
         <div className="space-y-4 text-muted">
           {profile.summary.map((paragraph) => (
