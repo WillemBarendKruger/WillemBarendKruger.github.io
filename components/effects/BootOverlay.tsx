@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useTypewriter } from "@/lib/hooks/useTypewriter";
 
@@ -15,30 +15,20 @@ const LINES = [
 const STORAGE_KEY = "boot-seen";
 const LINE_MS = 260;
 
-// Cached after the first successful read. This component's own write effect
-// (below) is the only thing that ever changes this sessionStorage key, so a
-// live re-read on every render would observe our own write and flip "seen"
-// to true mid-animation, closing the overlay after a single tick instead of
-// letting it run its course. Freezing the value for the life of this module
-// avoids that self-inflicted tear; a fresh page load gets a fresh cache.
-let cachedBootSeen: boolean | null = null;
-
-function getBootSeenSnapshot(): boolean {
-  if (cachedBootSeen === null) {
-    try {
-      cachedBootSeen = sessionStorage.getItem(STORAGE_KEY) !== null;
-    } catch {
-      // Private mode or blocked storage: treat as "not seen" so the overlay
-      // still shows once for this page view.
-      cachedBootSeen = false;
-    }
+function readBootSeen(): boolean {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    // Private mode or blocked storage: treat as "not seen" so the overlay
+    // still shows once for this page view.
+    return false;
   }
-  return cachedBootSeen;
 }
 
-// There is no native storage event for same-tab writes, and the value above
-// is read once (and cached) rather than watched, so there is nothing to
-// subscribe to. This no-op is intentional, not an oversight.
+// There is no native storage event for same-tab writes, and the value below
+// is read once per mount (and cached for that mount) rather than watched, so
+// there is nothing to subscribe to. This no-op is intentional, not an
+// oversight.
 function subscribeBootSeen(): () => void {
   return () => {};
 }
@@ -51,7 +41,21 @@ function getBootSeenServerSnapshot(): boolean {
 }
 
 function useBootSeen(): boolean {
-  return useSyncExternalStore(subscribeBootSeen, getBootSeenSnapshot, getBootSeenServerSnapshot);
+  // Cached per mount, not per module. Freezing the value for the lifetime of
+  // this mount stops the component observing its own sessionStorage write and
+  // collapsing mid-animation; resetting it on remount means a client-side
+  // navigation back to this page correctly reads "already seen" instead of
+  // replaying a frozen answer from a previous visit to this page.
+  const seenRef = useRef<boolean | null>(null);
+
+  const getSnapshot = useCallback(() => {
+    if (seenRef.current === null) {
+      seenRef.current = readBootSeen();
+    }
+    return seenRef.current;
+  }, []);
+
+  return useSyncExternalStore(subscribeBootSeen, getSnapshot, getBootSeenServerSnapshot);
 }
 
 /**
