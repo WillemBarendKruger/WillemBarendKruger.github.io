@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Untracked local directory used by the Remember plugin; not part of the app.
+    ".remember/**",
   ]),
 ]);
 
