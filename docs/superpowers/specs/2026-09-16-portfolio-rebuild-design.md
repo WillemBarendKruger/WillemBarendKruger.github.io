@@ -208,14 +208,19 @@ earliest commit across all graduate-programme repositories (`github-challenge`, 
 
 ### Education
 
-Bachelor of Information Technology, Belgium Campus ITversity, Kempton Park.
+Bachelor of Information Technology, Belgium Campus ITversity, Kempton Park. **2021–2024 —
+VERIFIED**, confirmed by Willem on 2026-09-16, resolving a conflict between the old education
+page ("January 2022 – December 2024") and the 2025 CV ("2021–2024") in favour of the latter.
 
-**CONFLICT — must be resolved before publishing.** The old education page states
-"January 2022 – December 2024"; the 2025 CV states "2021–2024". Willem must confirm which is
-correct. The site publishes no date until he does.
+Coursework, from the CV: object-oriented programming, data structures, software engineering,
+web development, software analysis and design, software testing, database development, data
+analytics, business intelligence.
 
-Also claimed on the old site and carried forward only if Willem reconfirms: "Graduated with
-Honors, GPA 3.2/4.0", and "Certified Software Developer – Belgium Campus".
+**Deliberately excluded.** The old site claimed "Graduated with Honors, GPA 3.2/4.0" and
+"Certified Software Developer – Belgium Campus". Neither could be corroborated from any other
+source, and when asked to confirm them Willem restated the qualification as the degree alone.
+They do not appear on the site. The education entry is the degree, the institution and the
+dates — nothing further.
 
 Milestone project: aviation safety weather observation system — reads temperature, humidity and
 light from onboard sensors, warns pilots of hazardous conditions, transmits readings to a web
@@ -348,7 +353,7 @@ automated. **The site returns 404 between merging to `main` and this switch bein
 | Boot sequence blocks or annoys | Overlay over rendered content, skippable four ways, once per session, absent under reduced motion |
 | Overclaiming a project feature | Every claim traced to source in §9; unbuilt items live in `planned` |
 | Client confidentiality breach | Hard constraint in §9; no client material enters the repo |
-| Unverified personal facts published | Degree dates conflict between sources and are withheld until Willem confirms; employment start date resolved 2026-09-16 |
+| Unverified personal facts published | All resolved 2026-09-16 — employment start, degree dates confirmed; uncorroborated honours/GPA/certification claims dropped |
 | Stale CV undermines positioning | Not linked; ships only when replaced |
 
 ---
