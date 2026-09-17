@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #05070A;
+  --color-panel: #0D1117;
+  --color-green: #39FF88;
+  --color-cyan: #00E5FF;
+  --color-purple: #9B5CFF;
+  --color-text: #C9D1D9;
+  --color-muted: #8B949E;
+  --color-hairline: #6E7681;
+
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-glow-sm: 0 0 8px -2px currentColor;
+  --shadow-glow-md: 0 0 18px -4px currentColor;
+  --shadow-glow-lg: 0 0 36px -8px currentColor;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-purple);
+    color: #ffffff;
+  }
+}
+
+/*
+ * Global motion kill-switch. Components additionally check the preference in
+ * JS (see lib/hooks/usePrefersReducedMotion) so effects never mount at all —
+ * this rule is the backstop for anything purely CSS-driven.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
