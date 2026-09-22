@@ -22,14 +22,14 @@ export function FeaturedProjects() {
   const blurb = featuredBlurb(featuredProjects.length);
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-24">
+    <section className="mx-auto max-w-5xl px-4 py-24 sm:py-32">
       <SectionHeading
         id="projects"
         index="03 // Artifacts"
         title="What I've built"
         blurb={blurb}
       />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
         {featuredProjects.map((project, index) => (
           <Reveal key={project.slug} delayMs={index * 80}>
             <ProjectCard project={project} />
@@ -39,7 +39,7 @@ export function FeaturedProjects() {
       <h3 className="mt-16 font-mono text-sm tracking-widest text-muted uppercase">
         Also built
       </h3>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {others.map((project, index) => (
           <Reveal key={project.slug} delayMs={index * 60}>
             <ProjectCard project={project} />
