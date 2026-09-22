@@ -44,10 +44,31 @@ test("boot overlay appears under default motion and auto-dismisses", async ({ pa
   await expect(overlay).toHaveCount(0, { timeout: 4000 });
 });
 
-test("exactly one particle-field canvas exists under default motion", async ({ page }) => {
+test("generated artwork is present and actually animating", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Escape");
-  await expect(page.locator("canvas")).toHaveCount(1);
+
+  // The signature scenes must exist at all — a regression that silently
+  // stopped rendering them would otherwise be invisible to this suite.
+  await expect(page.locator('[data-scene="depth-field"]')).toHaveCount(1);
+  await expect(page.locator('[data-scene="arcane-solid"]')).toHaveCount(1);
+  await expect(page.locator('[data-scene="sigil"]')).toHaveCount(4);
+  await expect(page.locator('[data-scene="card-art"]').first()).toBeAttached();
+
+  // Sampling the same canvas twice proves the loop is genuinely running.
+  // Asserting the element exists would pass against a dead animation.
+  const sample = () =>
+    page.evaluate(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('[data-scene="depth-field"]');
+      return canvas ? canvas.toDataURL() : null;
+    });
+
+  const first = await sample();
+  await page.waitForTimeout(900);
+  const second = await sample();
+
+  expect(first).not.toBeNull();
+  expect(second).not.toBe(first);
 });
 
 // I8(c) / C1 regression coverage: this is the geometry check that would have
@@ -99,7 +120,31 @@ test.describe("reduced motion", () => {
     await expect(page.getByRole("status")).toHaveCount(0);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByRole("heading", { name: /what i've built/i })).toBeVisible();
-    await expect(page.locator("canvas")).toHaveCount(0);
+  });
+
+  // Reduced motion means less MOVEMENT, not less content. Deleting the
+  // artwork would strip the design for exactly the readers who did not ask
+  // for a plainer page — so the requirement is that the scenes still render
+  // and simply hold still.
+  test("artwork still renders, and holds completely still", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.locator('[data-scene="depth-field"]')).toHaveCount(1);
+    await expect(page.locator('[data-scene="arcane-solid"]')).toHaveCount(1);
+    await expect(page.locator('[data-scene="sigil"]')).toHaveCount(4);
+
+    const sample = () =>
+      page.evaluate(() => {
+        const canvas = document.querySelector<HTMLCanvasElement>('[data-scene="depth-field"]');
+        return canvas ? canvas.toDataURL() : null;
+      });
+
+    const first = await sample();
+    await page.waitForTimeout(900);
+    const second = await sample();
+
+    expect(first).not.toBeNull();
+    expect(second).toBe(first);
   });
 });
 

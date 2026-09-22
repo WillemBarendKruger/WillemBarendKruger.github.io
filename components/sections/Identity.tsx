@@ -5,7 +5,7 @@ import { profile } from "@/data/profile";
 
 export function Identity() {
   return (
-    <section className="mx-auto max-w-4xl px-4 py-24">
+    <section className="mx-auto max-w-4xl px-4 py-24 sm:py-32">
       <SectionHeading id="identity" index="01 // Identity" title="Who is typing" />
       <TerminalFrame title="willem@grimoire — whoami">
         <p className="text-green">&gt; whoami</p>

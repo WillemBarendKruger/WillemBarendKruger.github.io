@@ -4,7 +4,7 @@ import { timeline } from "@/data/timeline";
 
 export function Timeline() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-24">
+    <section className="mx-auto max-w-3xl px-4 py-24 sm:py-32">
       <SectionHeading
         id="timeline"
         index="04 // Quest log"
@@ -15,7 +15,7 @@ export function Timeline() {
           <li key={entry.title} className="pb-10 last:pb-0">
             <span
               aria-hidden
-              className="absolute -left-[5px] size-2.5 rounded-full bg-purple"
+              className="node-pulse absolute -left-[5px] size-2.5 rounded-full bg-purple"
             />
             <Reveal delayMs={index * 60}>
               <p className="font-mono text-xs tracking-widest text-purple uppercase">
