@@ -5,13 +5,13 @@ import { quests } from "@/data/quests";
 
 export function QuestLog() {
   return (
-    <section className="mx-auto max-w-5xl px-4 py-24">
+    <section className="mx-auto max-w-5xl px-4 py-24 sm:py-32">
       <SectionHeading
         id="quests"
         index="05 // Active quests"
         title="What I'm learning now"
       />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
         {quests.map((quest, index) => (
           <Reveal key={quest.title} delayMs={index * 70}>
             <Panel accent="green" className="h-full p-5">

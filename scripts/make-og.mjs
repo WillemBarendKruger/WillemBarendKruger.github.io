@@ -5,7 +5,7 @@ const html = `<!doctype html>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   html,body{margin:0;padding:0}
-  body{width:1200px;height:630px;background:#05070A;color:#C9D1D9;
+  body{width:1200px;height:630px;background:#04100B;color:#C9D1D9;
        font-family:'JetBrains Mono',monospace;display:flex;flex-direction:column;
        justify-content:center;padding:0 80px;box-sizing:border-box}
   .tag{color:#39FF88;font-size:20px;letter-spacing:.3em;text-transform:uppercase}

@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #05070A;
-  --color-panel: #0D1117;
+  /* Green-cast rather than blue-grey near-black: the page reads as part of
+     the arcane theme instead of as a void. Both are still very dark — the
+     contrast floor in tests/tokens.test.ts governs how far this can move. */
+  --color-bg: #04100B;
+  --color-panel: #0A1811;
   --color-green: #39FF88;
   --color-cyan: #00E5FF;
   --color-purple: #9B5CFF;
@@ -39,6 +42,47 @@
     background-color: var(--color-purple);
     color: #ffffff;
   }
+}
+
+/*
+ * Ambient and decorative motion.
+ *
+ * Declared ONLY inside `no-preference`, so under `reduce` these animations do
+ * not exist at all rather than relying on the kill-switch below to neutralise
+ * them. Every one of them animates `transform` on a decorative, aria-hidden
+ * layer — never the opacity of anything a reader has to see, which is the
+ * mistake that previously put text below the contrast floor mid-transition.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ambient-drift-a {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(5rem, 3rem, 0) scale(1.14); }
+  }
+
+  @keyframes ambient-drift-b {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1.06); }
+    50%      { transform: translate3d(-6rem, -4rem, 0) scale(1); }
+  }
+
+  @keyframes ambient-drift-c {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(3rem, -3rem, 0) scale(1.1); }
+  }
+
+  @keyframes sigil-turn {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes node-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(155 92 255 / 0.45); }
+    55%      { box-shadow: 0 0 0 7px rgb(155 92 255 / 0); }
+  }
+
+  .ambient-a { animation: ambient-drift-a 34s ease-in-out infinite; }
+  .ambient-b { animation: ambient-drift-b 44s ease-in-out infinite; }
+  .ambient-c { animation: ambient-drift-c 38s ease-in-out infinite; }
+  .sigil-turn { animation: sigil-turn 90s linear infinite; }
+  .node-pulse { animation: node-pulse 4s ease-in-out infinite; }
 }
 
 /*

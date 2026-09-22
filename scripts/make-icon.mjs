@@ -11,7 +11,7 @@ const html = `<!doctype html>
 <style>
   html,body{margin:0;padding:0}
   body{
-    width:${SIZE}px;height:${SIZE}px;background:#05070A;
+    width:${SIZE}px;height:${SIZE}px;background:#04100B;
     display:flex;align-items:center;justify-content:center;
     box-sizing:border-box;
   }

@@ -6,7 +6,7 @@ export function Connect() {
   return (
     // A <footer> here would sit inside the layout's <main>, where it is not a
     // page-level contentinfo landmark — the element would misrepresent itself.
-    <section className="mx-auto max-w-3xl px-4 py-24">
+    <section className="mx-auto max-w-3xl px-4 py-24 sm:py-32">
       <SectionHeading
         id="connect"
         index="06 // Establish connection"
